@@ -19,6 +19,8 @@ public class MainFrame extends JFrame {
     private JTextPane myIPTextPane;
     private JTextPane serverIPTextPane;
     private JComboBox canalBox;
+    private JRadioButton radioButton1;
+    private JRadioButton radioButton2;
 
     boolean stopCapture = false;
     boolean stopPlayback = false;
@@ -92,27 +94,29 @@ public class MainFrame extends JFrame {
                                              }
                                          }
             );
-
-//            stopBtn.addActionListener(new ActionListener(){
-//                                          public void actionPerformed(ActionEvent e){
-//                                              captureBtn.setEnabled(true);
-//                                              stopBtn.setEnabled(false);
-//
-//                                              stopCapture = true;
-//                                              targetDataLine.close();
-//                                          }
-//                                      }
-//            );
-
-            stopPlayback = false;
-            Thread playAudio = new PlayAudio();
-            playAudio.start();
         }catch(Exception e){
             System.out.println(e);
             System.exit(1);
         }
 
 
+        radioButton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                radioButton2.setSelected(false);
+                stopPlayback = false;
+                Thread playAudio = new PlayAudio();
+                playAudio.start();
+
+            }
+        });
+        radioButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                radioButton1.setSelected(false);
+                stopPlayback = true;
+            }
+        });
     }
 
     private AudioFormat getAudioFormat(){
