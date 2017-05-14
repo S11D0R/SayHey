@@ -38,6 +38,7 @@ public class MainFrame extends JFrame {
     volatile  InetAddress ipAdress;
     String ip = "192.168.43.2";
 
+    volatile int timeout = 1;
 
     public MainFrame(){
         super("SayHey client");
@@ -63,7 +64,6 @@ public class MainFrame extends JFrame {
         addWindowListener(exitListener);
 
         talkButton.addMouseListener(new MouseListener() {
-
             public void mouseClicked(MouseEvent e) {}
             public void mouseEntered(MouseEvent e) {}
             public void mouseExited(MouseEvent e) {}
@@ -134,6 +134,8 @@ public class MainFrame extends JFrame {
                     talkButton.setEnabled(true);
                     Thread playAudio = new PlayAudio();
                     playAudio.start();
+                    Thread offTalkButton = new switchTalkButton();
+                    offTalkButton.start();
                 }else{
                     stopPlayback = true;
                     radioButton1.setSelected(false);
@@ -173,9 +175,10 @@ public class MainFrame extends JFrame {
         }
     }
     public void doOnPressedAction() {
-
-        ip = serverIPField.getText();
-        captureAudio();
+        if(talkButton.isEnabled()){
+            ip = serverIPField.getText();
+            captureAudio();
+        }
     }
     public void doOnReleasedAction() {
         stopCapture = true;
@@ -194,6 +197,7 @@ public class MainFrame extends JFrame {
 
                 while(!stopPlayback) {
                     s.receive(pac);
+                    timeout = 0;
                     talkButton.setEnabled(false);
                     InputStream byteArrayInputStream = new ByteArrayInputStream(audioData);
                     audioInputStream = new AudioInputStream(byteArrayInputStream,audioFormat,audioData.length / audioFormat.getFrameSize());
@@ -211,6 +215,23 @@ public class MainFrame extends JFrame {
 
     }
 
+    class switchTalkButton extends Thread{
+        public void run(){
+            try{
+                while(!stopPlayback){
+                    if(timeout == 0){
+                        timeout = 1;
+                        sleep(2000);
+                    }else{
+                        talkButton.setEnabled(true);
+                    }
+                }
+            }catch (Exception e) {
+                System.out.println(e);
+                System.exit(0);
+            }
+        }
+    }
     class sendThread extends Thread{
         public void run(){
             try{
@@ -274,7 +295,6 @@ public class MainFrame extends JFrame {
                         sourceDataLine.write(tempBuffer,0,cnt);
                     }
                 }
-                talkButton.setEnabled(true);
             }catch (Exception e) {
                 System.out.println(e);
                 System.exit(0);
