@@ -3,6 +3,7 @@
     <properties maven-id="javax.media:jmf:2.1.1e" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/javax/media/jmf/2.1.1e/jmf-2.1.1e.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/media/jmf/2.1.1e/jmf-2.1.1e.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
