@@ -19,9 +19,10 @@ public class MainFrame extends JFrame {
     private JTextPane myIPTextPane;
     private JTextPane serverIPTextPane;
     private JComboBox canalBox;
+    private JRadioButton radioButton1;
 
     boolean stopCapture = false;
-    boolean stopPlayback = false;
+    boolean stopPlayback = true;
     volatile AudioFormat audioFormat;
     volatile TargetDataLine targetDataLine;
     volatile SourceDataLine sourceDataLine;
@@ -48,7 +49,6 @@ public class MainFrame extends JFrame {
         setVisible(true);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-
         WindowListener exitListener = new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -61,6 +61,36 @@ public class MainFrame extends JFrame {
             }
         };
         addWindowListener(exitListener);
+
+        talkButton.addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) {
+                doOnPressedAction();
+            }
+            public void mouseReleased(MouseEvent e) {
+                doOnReleasedAction();
+            }
+        });
+        talkButton.addKeyListener(new KeyListener(){
+            public void keyTyped(KeyEvent e) {}
+
+            public void keyPressed(KeyEvent e) {
+                if (talkButton.getModel().isPressed()) {
+                    doOnPressedAction();
+                } else {
+                    // just in case it can happen that the button is released on
+                    // a key press action (maybe another controls key listener...)
+                    doOnReleasedAction();
+                }
+            }
+
+            public void keyReleased(KeyEvent e) {
+                doOnReleasedAction();
+            }
+        });
 
         try{
             ipAdress = InetAddress.getByName(ip);
@@ -81,7 +111,6 @@ public class MainFrame extends JFrame {
             DataLine.Info sourceDataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
             sourceDataLine = (SourceDataLine)AudioSystem.getLine(sourceDataLineInfo);
 
-
             talkButton.addActionListener(new ActionListener(){
                                              public void actionPerformed(
                                                      ActionEvent e){
@@ -92,27 +121,26 @@ public class MainFrame extends JFrame {
                                              }
                                          }
             );
-
-//            stopBtn.addActionListener(new ActionListener(){
-//                                          public void actionPerformed(ActionEvent e){
-//                                              captureBtn.setEnabled(true);
-//                                              stopBtn.setEnabled(false);
-//
-//                                              stopCapture = true;
-//                                              targetDataLine.close();
-//                                          }
-//                                      }
-//            );
-
-            stopPlayback = false;
-            Thread playAudio = new PlayAudio();
-            playAudio.start();
         }catch(Exception e){
             System.out.println(e);
             System.exit(1);
         }
-
-
+        onOffButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(stopPlayback){
+                    stopPlayback = false;
+                    radioButton1.setSelected(true);
+                    talkButton.setEnabled(true);
+                    Thread playAudio = new PlayAudio();
+                    playAudio.start();
+                }else{
+                    stopPlayback = true;
+                    radioButton1.setSelected(false);
+                    talkButton.setEnabled(false);
+                }
+            }
+        });
     }
 
     private AudioFormat getAudioFormat(){
@@ -144,7 +172,15 @@ public class MainFrame extends JFrame {
             System.exit(0);
         }
     }
+    public void doOnPressedAction() {
 
+        ip = serverIPField.getText();
+        captureAudio();
+    }
+    public void doOnReleasedAction() {
+        stopCapture = true;
+        targetDataLine.close();
+    }
     class PlayAudio extends Thread {
         public void run(){
             try{
