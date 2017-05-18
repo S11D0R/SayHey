@@ -38,7 +38,7 @@ public class MainFrame extends JFrame {
     volatile  InetAddress ipAdress;
     InetAddress myIpAdress;
     String ip = "192.168.43.2";
-
+    volatile int blinkTimeout = 500;
     volatile int timeout = 1;
 
     public MainFrame(){
@@ -227,7 +227,7 @@ public class MainFrame extends JFrame {
                 while(!stopPlayback){
                     if(timeout == 0){
                         timeout = 1;
-                        sleep(100);
+                        sleep(blinkTimeout);
                     }else{
                         talkButton.setEnabled(true);
                     }
