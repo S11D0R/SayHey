@@ -36,6 +36,7 @@ public class MainFrame extends JFrame {
     volatile boolean tempBufferFlag2 = true;
     volatile DatagramSocket s;
     volatile  InetAddress ipAdress;
+    InetAddress myIpAdress;
     String ip = "192.168.43.2";
 
     volatile int timeout = 1;
@@ -49,6 +50,8 @@ public class MainFrame extends JFrame {
         setContentPane(root);
         setVisible(true);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+
 
         WindowListener exitListener = new WindowAdapter() {
             @Override
@@ -93,6 +96,9 @@ public class MainFrame extends JFrame {
         });
 
         try{
+            myIpAdress = InetAddress.getLocalHost();
+            myIPField.setText(myIpAdress.getHostAddress());
+
             ipAdress = InetAddress.getByName(ip);
             s = new DatagramSocket(8033);
 
@@ -221,7 +227,7 @@ public class MainFrame extends JFrame {
                 while(!stopPlayback){
                     if(timeout == 0){
                         timeout = 1;
-                        sleep(2000);
+                        sleep(100);
                     }else{
                         talkButton.setEnabled(true);
                     }
